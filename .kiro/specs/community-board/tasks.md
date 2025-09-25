@@ -1,6 +1,6 @@
 # 구현 계획
 
-- [ ] 1. 프로젝트 초기 설정 및 Docker 환경 구성
+- [x] 1. 프로젝트 초기 설정 및 Docker 환경 구성
   - package.json 생성 및 필요한 의존성 설치 (fastify, knex, mysql2, bcrypt, @fastify/jwt, ajv 등)
   - Docker Compose 설정 파일 작성 (MySQL 8.0 컨테이너 포함)
   - Dockerfile 작성 (Node.js 앱용)
