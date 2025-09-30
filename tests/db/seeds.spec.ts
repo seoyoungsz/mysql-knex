@@ -5,7 +5,7 @@ const DEFAULT_ADMIN_EMAIL = 'admin@community.local';
 const EXPECTED_CATEGORIES = ['공지사항', '자유게시판', 'Q&A', '이벤트'];
 const EXPECTED_TAGS = ['공지', '정보', '질문', '이벤트'];
 
-describe('database seeds', () => {
+describe('데이터베이스 시드', () => {
   let db: Knex;
 
   beforeAll(async () => {
@@ -23,16 +23,16 @@ describe('database seeds', () => {
     await db.destroy();
   });
 
-  it('populates initial categories, tags, and admin user', async () => {
+  it('초기 카테고리, 태그, 관리자 계정을 생성해야 한다', async () => {
     await db.seed.run();
 
     const categories = await db('categories').select('name').orderBy('name');
-    expect(categories.map((category) => category.name)).toEqual(
+    expect(categories.map(category => category.name)).toEqual(
       expect.arrayContaining(EXPECTED_CATEGORIES)
     );
 
     const tags = await db('tags').select('name').orderBy('name');
-    expect(tags.map((tag) => tag.name)).toEqual(expect.arrayContaining(EXPECTED_TAGS));
+    expect(tags.map(tag => tag.name)).toEqual(expect.arrayContaining(EXPECTED_TAGS));
 
     const [admin] = await db('users').where({ email: DEFAULT_ADMIN_EMAIL }).select('*');
     expect(admin).toBeDefined();
@@ -41,7 +41,7 @@ describe('database seeds', () => {
     expect(admin.password).toMatch(/^\$2[aby]\$/);
   });
 
-  it('is idempotent when executed multiple times', async () => {
+  it('여러 번 실행해도 멱등성을 유지해야 한다', async () => {
     await db.seed.run();
     await db.seed.run();
 

@@ -2,8 +2,8 @@ import path from 'path';
 import { knex, Knex } from 'knex';
 
 const ROOT_PATH = path.resolve(__dirname, '..', '..');
-const MIGRATIONS_DIR = path.join(ROOT_PATH, 'db', 'migrations');
-const SEEDS_DIR = path.join(ROOT_PATH, 'db', 'seeds');
+const MIGRATIONS_DIR = path.join(ROOT_PATH, 'src', 'db', 'migrations');
+const SEEDS_DIR = path.join(ROOT_PATH, 'src', 'db', 'seeds');
 
 export async function createTestDatabase(): Promise<Knex> {
   const testDb = knex({
@@ -14,10 +14,12 @@ export async function createTestDatabase(): Promise<Knex> {
     useNullAsDefault: true,
     migrations: {
       directory: MIGRATIONS_DIR,
+      extension: 'ts',
       loadExtensions: ['.js', '.ts'],
     },
     seeds: {
       directory: SEEDS_DIR,
+      extension: 'ts',
       loadExtensions: ['.js', '.ts'],
     },
     pool: {

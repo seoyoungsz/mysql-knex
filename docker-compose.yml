@@ -26,7 +26,7 @@ services:
       MYSQL_USER: community
       MYSQL_PASSWORD: communitypass
     ports:
-      - '3307:3307'
+      - '3307:3306'
     healthcheck:
       test: ['CMD-SHELL', 'mysqladmin ping -h localhost -uroot -prootpassword']
       interval: 10s

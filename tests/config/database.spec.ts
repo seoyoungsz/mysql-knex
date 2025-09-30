@@ -1,104 +1,96 @@
-import path from 'path';
+import knexConfig from '../../knexfile';
 
-describe('database configuration', () => {
-  const originalEnv = { ...process.env };
+describe('데이터베이스 설정', () => {
+  describe('knexfile 설정', () => {
+    it('개발 환경 설정이 MySQL로 올바르게 구성되어야 한다', () => {
+      const config = knexConfig.development;
 
-  function setRequiredEnv(overrides: Partial<NodeJS.ProcessEnv> = {}): void {
-    process.env.APP_HOST = overrides.APP_HOST ?? '127.0.0.1';
-    process.env.APP_PORT = overrides.APP_PORT ?? '3000';
-    process.env.JWT_SECRET = overrides.JWT_SECRET ?? 'test-secret';
-    process.env.JWT_EXPIRES_IN = overrides.JWT_EXPIRES_IN ?? '1h';
-    process.env.BCRYPT_SALT_ROUNDS = overrides.BCRYPT_SALT_ROUNDS ?? '10';
-    process.env.NODE_ENV = overrides.NODE_ENV ?? 'development';
-  }
+      expect(config.client).toBe('mysql2');
+      expect(config.connection).toEqual(
+        expect.objectContaining({
+          host: expect.any(String),
+          port: expect.any(Number),
+          database: expect.any(String),
+          user: expect.any(String),
+          password: expect.any(String),
+          ssl: false,
+        })
+      );
+      expect(config.pool).toEqual({ min: 2, max: 10 });
+      expect(config.migrations?.directory).toBe('./src/db/migrations');
+      expect(config.migrations?.extension).toBe('ts');
+      expect(config.seeds?.directory).toBe('./src/db/seeds');
+      expect(config.seeds?.extension).toBe('ts');
+    });
 
-  function restoreEnv(): void {
-    process.env = { ...originalEnv } as NodeJS.ProcessEnv;
-  }
+    it('테스트 환경 설정이 SQLite 인메모리로 올바르게 구성되어야 한다', () => {
+      const config = knexConfig.test;
 
-  beforeEach(() => {
-    jest.resetModules();
-    setRequiredEnv();
+      expect(config.client).toBe('sqlite3');
+      expect(config.connection).toEqual({
+        filename: ':memory:',
+        database: 'community_board_test',
+      });
+      expect(config.useNullAsDefault).toBe(true);
+      expect(config.migrations?.directory).toBe('./src/db/migrations');
+      expect(config.migrations?.extension).toBe('ts');
+      expect(config.seeds?.directory).toBe('./src/db/seeds');
+      expect(config.seeds?.extension).toBe('ts');
+    });
+
+    it('프로덕션 환경 설정이 MySQL로 올바르게 구성되어야 한다', () => {
+      const config = knexConfig.production;
+
+      expect(config.client).toBe('mysql2');
+      expect(config.pool).toEqual({ min: 2, max: 20 });
+      expect(config.migrations?.directory).toBe('./dist/db/migrations');
+      expect(config.migrations?.extension).toBe('js');
+      expect(config.seeds?.directory).toBe('./dist/db/seeds');
+      expect(config.seeds?.extension).toBe('js');
+    });
   });
 
-  afterEach(() => {
-    restoreEnv();
-  });
+  describe('데이터베이스 인스턴스', () => {
+    const originalEnv = { ...process.env };
 
-  it('builds knex config for mysql using provided connection details', () => {
-    const { createKnexConfig } = require('../../src/config/database');
+    function setRequiredEnv(overrides: Partial<NodeJS.ProcessEnv> = {}): void {
+      process.env.APP_HOST = overrides.APP_HOST ?? '127.0.0.1';
+      process.env.APP_PORT = overrides.APP_PORT ?? '3000';
+      process.env.JWT_SECRET = overrides.JWT_SECRET ?? 'test-secret';
+      process.env.JWT_EXPIRES_IN = overrides.JWT_EXPIRES_IN ?? '1h';
+      process.env.BCRYPT_SALT_ROUNDS = overrides.BCRYPT_SALT_ROUNDS ?? '10';
+      process.env.NODE_ENV = overrides.NODE_ENV ?? 'test';
+    }
 
-    const config = createKnexConfig(
-      {
-        host: 'localhost',
-        port: 3307,
-        name: 'community_board_dev',
-        user: 'dev_user',
-        password: 'secret',
-      },
-      'development'
-    );
+    function restoreEnv(): void {
+      process.env = { ...originalEnv } as NodeJS.ProcessEnv;
+    }
 
-    expect(config.client).toBe('mysql2');
-    expect(config.connection).toEqual(
-      expect.objectContaining({
-        host: 'localhost',
-        port: 3307,
-        database: 'community_board_dev',
-        user: 'dev_user',
-        password: 'secret',
-      })
-    );
+    beforeEach(() => {
+      jest.resetModules();
+      setRequiredEnv();
+    });
 
-    expect(config.pool).toEqual(expect.objectContaining({ min: 2, max: 10 }));
-    expect(config.migrations?.directory).toContain(path.join('db', 'migrations'));
-    expect(config.migrations?.tableName).toBe('knex_migrations');
-    expect(config.seeds?.directory).toContain(path.join('db', 'seeds'));
-  });
+    afterEach(() => {
+      restoreEnv();
+    });
 
-  it('uses lightweight pool configuration for test environment', () => {
-    const { createKnexConfig } = require('../../src/config/database');
+    it('knexfile 설정으로부터 db 인스턴스를 생성해야 한다', async () => {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const db = require('../../src/config/database').default;
 
-    const config = createKnexConfig(
-      {
-        host: 'localhost',
-        port: 3306,
-        name: 'community_board_test',
-        user: 'tester',
-        password: 'testerpass',
-      },
-      'test'
-    );
+      expect(db).toBeDefined();
+      expect(db.client.config.client).toBe('sqlite3');
 
-    expect(config.pool).toEqual(expect.objectContaining({ min: 0, max: 1 }));
-  });
+      await db.destroy();
+    });
 
-  it('creates reusable knex instance with the generated configuration', async () => {
-    const { createKnexConfig, createKnexInstance } = require('../../src/config/database');
+    it('유효하지 않은 환경에 대해 에러를 발생시켜야 한다', () => {
+      process.env.NODE_ENV = 'invalid_env';
 
-    const config = createKnexConfig(
-      {
-        host: 'localhost',
-        port: 3306,
-        name: 'community_board_test',
-        user: 'tester',
-        password: 'testerpass',
-      },
-      'test'
-    );
-
-    const knexInstance = createKnexInstance(config);
-
-    expect(knexInstance.client.config).toEqual(expect.objectContaining(config));
-
-    await knexInstance.destroy();
-  });
-
-  it('exposes environment-specific knexfile configurations', () => {
-    const knexfile = require('../../knexfile');
-
-    expect(knexfile.development.connection.database).toBe('community_board');
-    expect(knexfile.test.connection.database).toBe('community_board_test');
-    expect(knexfile.production.connection.database).toBe('community_board');
+      expect(() => {
+        require('../../src/config/database');
+      }).toThrow('No database configuration found for environment: invalid_env');
+    });
   });
 });

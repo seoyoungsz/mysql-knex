@@ -45,7 +45,7 @@ async function insertPost(
   return typeof id === 'number' ? id : Number(id);
 }
 
-describe('database migrations', () => {
+describe('데이터베이스 마이그레이션', () => {
   let db: Knex;
 
   beforeAll(async () => {
@@ -63,7 +63,7 @@ describe('database migrations', () => {
     await db.destroy();
   });
 
-  it('creates users table with uniqueness constraints', async () => {
+  it('users 테이블이 유니크 제약조건과 함께 생성되어야 한다', async () => {
     await db('users').insert(DEFAULT_USER);
 
     await expect(
@@ -84,7 +84,7 @@ describe('database migrations', () => {
     expect(user.role).toBe('user');
   });
 
-  it('creates categories table with unique name constraint', async () => {
+  it('categories 테이블이 유니크 name 제약조건과 함께 생성되어야 한다', async () => {
     await db('categories').insert({ name: '공지사항', description: '공지용 카테고리' });
 
     await expect(
@@ -92,7 +92,7 @@ describe('database migrations', () => {
     ).rejects.toThrow(/UNIQUE|unique/);
   });
 
-  it('enforces foreign key relationship between posts, users, and categories', async () => {
+  it('posts, users, categories 간 외래 키 관계를 강제해야 한다', async () => {
     const userId = await insertUser(db);
     const categoryId = await insertCategory(db);
 
@@ -108,7 +108,7 @@ describe('database migrations', () => {
     ).rejects.toThrow(/FOREIGN KEY|foreign key/);
   });
 
-  it('supports comment hierarchy and cascades when post is deleted', async () => {
+  it('댓글 계층 구조를 지원하고 게시글 삭제 시 연쇄 삭제되어야 한다', async () => {
     const userId = await insertUser(db);
     const categoryId = await insertCategory(db);
     const postId = await insertPost(db, { userId, categoryId });
@@ -132,7 +132,7 @@ describe('database migrations', () => {
     expect(comments).toHaveLength(0);
   });
 
-  it('enforces uniqueness on post_tags composite key and cascades with posts/tags', async () => {
+  it('post_tags 복합 키의 유니크 제약조건을 강제하고 posts/tags와 연쇄 삭제되어야 한다', async () => {
     const userId = await insertUser(db);
     const categoryId = await insertCategory(db);
     const postId = await insertPost(db, { userId, categoryId });
@@ -151,7 +151,7 @@ describe('database migrations', () => {
     expect(postTags).toHaveLength(0);
   });
 
-  it('enforces unique likes per target and cascades on user deletion', async () => {
+  it('대상별 유니크한 좋아요를 강제하고 사용자 삭제 시 연쇄 삭제되어야 한다', async () => {
     const userId = await insertUser(db);
     const categoryId = await insertCategory(db);
     const postId = await insertPost(db, { userId, categoryId });
