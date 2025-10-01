@@ -1,6 +1,8 @@
 import knexConfig from '../../knexfile';
+import { env } from '../../src/config/env';
+import type { AppConfig } from '../../src/types/app-config';
 
-describe('데이터베이스 설정', () => {
+describe('Database 설정', () => {
   describe('knexfile 설정', () => {
     it('개발 환경 설정이 MySQL로 올바르게 구성되어야 한다', () => {
       const config = knexConfig.development;
@@ -29,9 +31,9 @@ describe('데이터베이스 설정', () => {
       expect(config.client).toBe('sqlite3');
       expect(config.connection).toEqual({
         filename: ':memory:',
-        database: 'community_board_test',
       });
       expect(config.useNullAsDefault).toBe(true);
+      expect(config.pool).toEqual({ min: 1, max: 1 });
       expect(config.migrations?.directory).toBe('./src/db/migrations');
       expect(config.migrations?.extension).toBe('ts');
       expect(config.seeds?.directory).toBe('./src/db/seeds');
@@ -50,7 +52,7 @@ describe('데이터베이스 설정', () => {
     });
   });
 
-  describe('데이터베이스 인스턴스', () => {
+  describe('Database 인스턴스', () => {
     const originalEnv = { ...process.env };
 
     function setRequiredEnv(overrides: Partial<NodeJS.ProcessEnv> = {}): void {
@@ -75,6 +77,14 @@ describe('데이터베이스 설정', () => {
       restoreEnv();
     });
 
+    it('환경 설정 타입을 AppConfig와 호환되게 유지해야 한다', () => {
+      type EnvMatchesConfig = typeof env extends AppConfig ? true : false;
+
+      const envMatchesConfig: EnvMatchesConfig = true;
+
+      expect(envMatchesConfig).toBe(true);
+    });
+
     it('knexfile 설정으로부터 db 인스턴스를 생성해야 한다', async () => {
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const db = require('../../src/config/database').default;
@@ -90,7 +100,7 @@ describe('데이터베이스 설정', () => {
 
       expect(() => {
         require('../../src/config/database');
-      }).toThrow('No database configuration found for environment: invalid_env');
+      }).toThrow('invalid_env 환경에 대한 데이터베이스 설정을 찾을 수 없습니다');
     });
   });
 });

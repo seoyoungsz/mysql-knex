@@ -15,11 +15,14 @@ describe('App bootstrap', () => {
   it('responds to health check', async () => {
     const response = await app.inject({
       method: 'GET',
-      url: '/healthz',
+      url: '/health',
     });
 
     expect(response.statusCode).toBe(200);
     expect(response.headers['content-type']).toContain('application/json');
-    expect(JSON.parse(response.payload)).toEqual({ status: 'ok' });
+    const payload = JSON.parse(response.payload);
+    expect(payload.status).toBe('ok');
+    expect(payload.database).toBe('connected');
+    expect(payload.timestamp).toBeDefined();
   });
 });

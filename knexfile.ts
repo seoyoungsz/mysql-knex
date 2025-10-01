@@ -53,7 +53,6 @@ const config: { [key: string]: Knex.Config } = {
     client: 'sqlite3',
     connection: {
       filename: ':memory:',
-      database: 'community_board_test',
     },
     migrations: {
       directory: './src/db/migrations',
@@ -64,6 +63,10 @@ const config: { [key: string]: Knex.Config } = {
       extension: 'ts',
     },
     useNullAsDefault: true,
+    pool: {
+      min: 1,
+      max: 1,
+    },
   },
 
   /**
@@ -99,6 +102,3 @@ const config: { [key: string]: Knex.Config } = {
 };
 
 export default config;
-
-// CommonJS compatibility for tests
-module.exports = config;

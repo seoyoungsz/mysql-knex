@@ -21,7 +21,7 @@
   - 시드 데이터 파일 작성 (기본 카테고리, 테스트 사용자 등)
   - _요구사항: 1.1, 2.1, 3.3, 1.2_
 
-- [ ] 3. Fastify 앱 기본 구조 및 플러그인 설정
+- [x] 3. Fastify 앱 기본 구조 및 플러그인 설정
   - Fastify 앱 진입점 작성 (src/app.js)
   - 데이터베이스 플러그인 작성 (src/plugins/database.js)
   - JWT 인증 플러그인 작성 (src/plugins/auth.js)

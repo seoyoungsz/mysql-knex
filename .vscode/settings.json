@@ -1,15 +1,16 @@
 {
-    "kiroAgent.configureMCP": "Disabled",
-    "cSpell.words": [
-        "communitypass",
-        "mysqladmin",
-        "prootpassword",
-        "rootpassword",
-        "uroot"
-    ],
-    "editor.formatOnSave": true,
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit"
-    }
+  "kiroAgent.configureMCP": "Disabled",
+  "cSpell.words": [
+    "communitypass",
+    "mysqladmin",
+    "prootpassword",
+    "rootpassword",
+    "testuser",
+    "uroot"
+  ],
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }

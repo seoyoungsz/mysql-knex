@@ -1,30 +1,7 @@
 import { config } from 'dotenv';
+import type { AppConfig } from '../types/app-config';
 
 config();
-
-/**
- * 데이터베이스 연결에 필요한 환경 변수 값 집합.
- */
-type DatabaseConfig = {
-  host: string;
-  port: number;
-  name: string;
-  user: string;
-  password: string;
-};
-
-/**
- * 애플리케이션이 참조하는 환경 변수 기반 설정 묶음.
- */
-type AppConfig = {
-  nodeEnv: string;
-  host: string;
-  port: number;
-  jwtSecret: string;
-  jwtExpiresIn: string;
-  bcryptSaltRounds: number;
-  database: DatabaseConfig;
-};
 
 /**
  * 환경 변수 값을 읽어 fallback 또는 필수 여부를 보장합니다.
@@ -83,3 +60,5 @@ export const env: AppConfig = {
 
 /** 테스트 환경 여부 플래그. */
 export const isTestEnv = env.nodeEnv === 'test';
+
+export type { AppConfig, DatabaseConfig } from '../types/app-config';
