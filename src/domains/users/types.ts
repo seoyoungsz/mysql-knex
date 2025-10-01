@@ -79,3 +79,25 @@ export interface SafeUser {
   createdAt: Date;
   updatedAt: Date;
 }
+
+/**
+ * 사용자 생성 입력 객체 (서비스 레이어용)
+ * 평문 비밀번호를 받아 서비스 레이어에서 해싱 처리
+ */
+export interface CreateUserInput {
+  email: string;
+  password: string; // 평문 비밀번호
+  nickname: string;
+  profileUrl?: string;
+}
+
+/**
+ * 사용자 수정 입력 객체 (서비스 레이어용)
+ * 평문 비밀번호를 받아 서비스 레이어에서 해싱 처리
+ */
+export interface UpdateUserInput {
+  email?: string;
+  password?: string; // 평문 비밀번호 (제공 시 해싱)
+  nickname?: string;
+  profileUrl?: string | null;
+}

@@ -1,5 +1,6 @@
 import path from 'path';
 import { knex, Knex } from 'knex';
+import type { Database } from 'sqlite3';
 
 const ROOT_PATH = path.resolve(__dirname, '..', '..');
 const MIGRATIONS_DIR = path.join(ROOT_PATH, 'src', 'db', 'migrations');
@@ -23,7 +24,7 @@ export async function createTestDatabase(): Promise<Knex> {
       loadExtensions: ['.js', '.ts'],
     },
     pool: {
-      afterCreate: (conn: any, done: (err: Error | null, conn: any) => void) => {
+      afterCreate: (conn: Database, done: (err: Error | null, conn: Database) => void) => {
         conn.run('PRAGMA foreign_keys = ON', (err: Error | null) => done(err, conn));
       },
     },
